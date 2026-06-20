@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro de Escola</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f2f2f2;
+    margin:0;
+    padding:30px;
+}
+
+.container{
+    max-width:500px;
+    margin:auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h2{text-align:center;}
+
+input{
+    width:100%;
+    padding:10px;
+    margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:5px;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:#27ae60;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+button:hover{background:#219150;}
+
+#msg{
+    margin-top:15px;
+    text-align:center;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🏫 Cadastro de Escola</h2>
+
+<input type="text" id="nome" placeholder="Nome da Escola">
+<input type="text" id="provincia" placeholder="Província">
+<input type="text" id="municipio" placeholder="Município">
+<input type="text" id="telefone" placeholder="Telefone">
+<input type="email" id="email" placeholder="Email">
+<input type="text" id="url" placeholder="URL da Escola">
+<input type="text" id="ano" placeholder="Ano Letivo Atual">
+
+<button id="btnSalvar">Cadastrar Escola</button>
+
+<p id="msg"></p>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+
+// 🔥 Firebase config
+const firebaseConfig = {
+  apiKey: "COLOCA_AQUI",
+  authDomain: "escola-digital-47497.firebaseapp.com",
+  projectId: "escola-digital-47497",
+  storageBucket: "escola-digital-47497.firebasestorage.app",
+  messagingSenderId: "322752680482",
+  appId: "1:322752680482:web:9f56c69fa6ba752f46707b"
+};
+
+firebase.initializeApp(firebaseConfig);
+window.db = firebase.firestore();
+
+
+// 💾 FUNÇÃO SALVAR
+async function salvar() {
+
+    console.log("Botão clicado");
+
+    const nome = document.getElementById("nome").value.trim();
+    const email = document.getElementById("email").value.trim();
+
+    if (!nome || !email) {
+        document.getElementById("msg").innerText = "Preencha Nome e Email!";
+        return;
+    }
+
+    const snap = await db.collection("escolas").get();
+    const escolaId = "ESC_" + String(snap.size + 1).padStart(3, "0");
+
+    const escola = {
+        escolaId,
+        nome,
+        provincia: document.getElementById("provincia").value.trim(),
+        municipio: document.getElementById("municipio").value.trim(),
+        telefone: document.getElementById("telefone").value.trim(),
+        email,
+        url: document.getElementById("url").value.trim(),
+        anoLetivoAtual: document.getElementById("ano").value.trim(),
+        adminUser: "admin_" + escolaId,
+        adminPass: "1234",
+        alunos: [],
+        professores: [],
+        turmas: []
+    };
+
+    await db.collection("escolas").doc(escolaId).set(escola);
+
+    document.getElementById("msg").innerHTML =
+        "✔ Escola criada com sucesso!<br><b>" + escolaId + "</b>";
+}
+
+
+// botão
+document.getElementById("btnSalvar").addEventListener("click", salvar);
+
+</script>
+
+</body>
+</html>
